@@ -122,9 +122,84 @@ Add this to your project's `.claude/CLAUDE.md`:
 ## Memory System
 At the START of every session, read `.claude/memory/MEMORY.md` and load relevant topic files.
 At the END of every session, update the activity log with: what was done, decisions made, next steps.
+When you learn something reusable (pattern, fix, gotcha), add it to the relevant topic file.
 ```
 
 That's it. Claude now has persistent memory.
+
+## How Files Get Updated (The Actual Process)
+
+This is the most common question — here's exactly what happens:
+
+### Session Start (Claude reads)
+```
+You: "Let's work on the auth system"
+
+Claude (automatically):
+  1. Reads .claude/memory/MEMORY.md (the index)
+  2. Sees: project-api.md has auth docs, activity-log.md has last session
+  3. Reads those files
+  4. Now knows: "Last session we migrated from JWT to cookies. Next step: update middleware."
+  5. Starts working — no context-rebuilding conversation needed
+```
+
+### During Work (Claude updates as it goes)
+```
+You fix a tricky Prisma bug together.
+
+Claude (automatically):
+  1. Creates .claude/memory/incident-prisma-null-filter.md
+  2. Documents: the error, root cause, fix, prevention
+  3. Updates project-api.md with the new pattern
+  → Next time this bug appears in ANY project, Claude already knows the fix
+```
+
+### Session End (Claude writes summary)
+```
+You: "Let's wrap up"
+
+Claude (automatically):
+  1. Appends to activity-log.md:
+     ## 2025-03-19 | Session 12
+     **Done:** Fixed Prisma null filter bug, updated auth middleware
+     **Decisions:** Using { field: { not: true } } pattern for nullable booleans
+     **Next:** Test protected routes, deploy to staging
+  2. Updates MEMORY.md index if new files were created
+```
+
+### What Triggers Updates?
+
+| Event | What Claude Does |
+|---|---|
+| Session starts | Reads `MEMORY.md` + relevant topic files |
+| Bug gets fixed | Creates/updates `incident-*.md` with root cause + fix |
+| Architecture decision made | Updates `project-*.md` with the decision and reasoning |
+| New integration added | Creates/updates `integration-*.md` with endpoints, auth, gotchas |
+| New pattern discovered | Updates `feedback-*.md` or creates `reference-*.md` |
+| Session ends | Appends to `activity-log.md` with done/decisions/next |
+| New tool/library found | Creates `reference-*.md` with evaluation notes |
+
+### Key Insight: It's Instruction-Driven
+
+The files don't update themselves — Claude updates them because your `CLAUDE.md` **instructs** it to. The templates provide the structure, the instructions provide the behavior. You can customize both:
+
+```markdown
+# Minimal (just session tracking):
+At session end, update the activity log.
+
+# Standard (recommended):
+At session start, read memory. At session end, update activity log.
+When fixing bugs, document in incident files. When making decisions, update project files.
+
+# Maximum (full knowledge capture):
+At session start, read ALL memory files.
+During work, update relevant files in real-time.
+Document every decision, pattern, fix, and discovery.
+At session end, write detailed activity log with blockers and next steps.
+Cross-reference between files when patterns connect.
+```
+
+The more specific your instructions, the more consistently Claude maintains the memory.
 
 ## Features
 
